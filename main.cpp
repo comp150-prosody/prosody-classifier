@@ -4,10 +4,50 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/ml.hpp>
 #include "ProsodyClassifier.h"
+#include "InputReader.h"
 using namespace cv;
 using namespace cv::ml;
-int main(int, char**)
+
+void testInputReader() {
+  vector<vector<double> > pos_data = InputReader::parseFile("./data/pos_mean.txt");
+
+  for (int r = 0; r < pos_data.size(); r++) {
+    for (int c = 0; c < pos_data[0].size(); c++) {
+      cout << pos_data[r][c];
+    }
+    cout << "\n";
+  }
+}
+
+void run(int argc, char *argv[]) {
+  if (argc != 4) {
+    cout << "./main positive_training negative_training test_data" << endl;
+  } else {
+    vector<vector<double> > pos_data = InputReader::parseFile(argv[1]);
+    vector<vector<double> > neg_data = InputReader::parseFile(argv[2]);
+    vector<vector<double> > test_data = InputReader::parseFile(argv[3]);
+
+    ProsodyClassifier pc(pos_data, neg_data);
+
+    vector<int> out = pc.query(test_data);
+
+    for (int i = 0; i < out.size(); i++) {
+      std::cout << out[i] << ", ";
+    }
+    std::cout << endl;
+
+    std::cout << "positive data size: " << pos_data.size() << endl;
+    std::cout << "negative data size: " << neg_data.size() << endl;
+    std::cout << "test_data size: " << test_data.size() << endl;
+    std::cout << "output size: " << out.size() << endl;
+    std::cout << endl;
+  }
+}
+
+int main(int argc, char *argv[])
 {
+    run(argc, argv);
+    /*
     std::vector<std::vector<double> > positives;
     std::vector<std::vector<double> > negatives;
 
@@ -43,7 +83,6 @@ int main(int, char**)
     Mat trainingDataMat(4, 2, CV_32FC1, trainingData);
     Mat labelsMat(4, 1, CV_32SC1, labels);
 
-    std::cout << trainingDataMat << std::endl;
     // Train the SVM
     Ptr<SVM> svm = SVM::create();
     svm->setType(SVM::C_SVC);
@@ -56,9 +95,9 @@ int main(int, char**)
         for (int j = 0; j < image.cols; ++j)
         {
             Mat sampleMat = (Mat_<float>(1,2) << j,i);
-            //bool result = pc.query(sampleMat);
+            bool result = pc.query(sampleMat);
             float response = svm->predict(sampleMat);
-            if (response == 1)
+            if (result)
                 image.at<Vec3b>(i,j)  = green;
             else if (response == -1)
                 image.at<Vec3b>(i,j)  = blue;
@@ -82,4 +121,5 @@ int main(int, char**)
     imwrite("result.png", image);        // save the image
     imshow("SVM Simple Example", image); // show it to the user
     waitKey(0);
+    */
 }

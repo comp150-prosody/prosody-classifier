@@ -20,6 +20,7 @@ class ProsodyClassifier {
     ProsodyClassifier(std::vector<std::vector<double> > positives, std::vector<std::vector<double> > negatives);
     bool query(std::vector<double> a);
     bool query(Mat a);
+    std::vector<int> query(std::vector<std::vector<double> > data);
   private:
     Ptr<SVM> svm;
 };
